@@ -60,4 +60,28 @@ proc logistic data = work.insurance_t;
 run;
 
 
+%let maineffects = SAVBAL_BIN SAV MTGBAL_BIN NSF MM IRA INV ILS DDABAL_BIN DDA ATM ATMAMT_BIN BRANCH CC CDBAL_BIN CHECKS_BIN TELLER_BIN SAVBAL_BIN|SAV|MTGBAL_BIN|NSF|MM|IRA|INV|ILS|DDABAL_BIN|DDA|ATM|ATMAMT_BIN|BRANCH|CC|CDBAL_BIN|CHECKS_BIN|TELLER_BIN;
+ods trace on;
+proc logistic data = work.insurance_t;
+	class _CHAR_;
+	model ins = &maineffects @2
+		/ selection = forward slentry = 0.002 clodds=pl clparm=pl;
+	ods output clparmpl = work.oddsratios;
+run;
+ods trace off;
+
+
+data log.insurance_t_bin;
+	set log.insurance_t_bin;
+	savbalddabalint = savbal_bin*ddabal_bin;
+	savbalddaint = savbal_bin*dda;
+	iraddaint = ira*dda;
+	savbalchecksint = savbal_bin*checks_bin;
+run;
+
+proc freq data = log.insurance_t_bin;
+	tables ins*(savbalddabalint savbalddaint iraddaint savbalchecksint);
+run;
+
+
 quit;
