@@ -1,8 +1,11 @@
+
+*libname statement;
 libname log "C:\Users\bjsul\Documents\NCSU\MSA\Fall\Logistic_Regression\Homework2_LR";
 
 *proc print data = log.insurance_t_bin;
 *run;
 
+*create new factor levels for missing values;
 data work.insurance_t;
 	set log.insurance_t_bin;
 	if cc = . then cc = 2;
@@ -11,37 +14,44 @@ data work.insurance_t;
 	if hmown = . then hmown = 2;
 run;
 
-
+*cross-freq tables for all variables with INS;
 proc freq data = work.insurance_t;
 	tables ins*(_all_);
 run;
 
+*collapse bins on variables with seperation concerns;
 data work.insurance_t;
 	set work.insurance_t;
 	if cashbk = 2 then cashbk = 1;
 	if mmcred = 5 then mmcred = 3;
 run;
 
+*cross freq table for INS, cashbk and mmcred;
 proc freq data = work.insurance_t;
 	tables ins*(cashbk mmcred);
 run;
 
+*check correleatino of mmbal_bin and mm;
 proc corr data = work.insurance_t;
 	var mmbal_bin mm;
 run;
 
+*get all var names;
 ods trace on;
 proc contents data = work.insurance_t short;
 	ods output variablesshort = varnames;
 run;
 ods trace off;
 
+/*
 data work.test;
 	set work.varnames;
 	variablesmin = substr(variables, find(variables, "INS"), 3);
 	call symputx("varns", variables);
 run;
+*/
 
+*logistic regression on all vars.  
 *ACCTAGE_Bin AGE_Bin ATM ATMAMT_Bin BRANCH CASHBK CC CCBAL_Bin CCPURC CD CDBAL_Bin CHECKS_Bin CRSCORE_Bin DDA DDABAL_Bin DEPAMT_Bin DIRDEP HMOWN HMVAL_Bin ILS ILSBAL_Bin INAREA INCOME_Bin INV INVBAL_Bin IRA IRABAL_Bin LOC LOCBAL_Bin LORES_Bin MM MMBAL_Bin MMCRED MOVED MTG MTGBAL_Bin NSF NSFAMT_Bin PHONE_Bin POSAMT_Bin POS_Bin RES SAV SAVBAL_Bin SDB TELLER_Bin ;
 proc logistic data = work.insurance_t;
 	class _CHAR_;
