@@ -70,7 +70,7 @@ proc logistic data = work.insurance_t;
 run;
 ods trace off;
 
-
+*hard coded interaction variables;
 data log.insurance_t_bin;
 	set log.insurance_t_bin;
 	savbalddabalint = savbal_bin*ddabal_bin;
@@ -79,6 +79,7 @@ data log.insurance_t_bin;
 	savbalchecksint = savbal_bin*checks_bin;
 run;
 
+*two way frequency table for interaction effects;
 proc freq data = log.insurance_t_bin;
 	tables ins*(savbalddabalint savbalddaint iraddaint savbalchecksint);
 run;
