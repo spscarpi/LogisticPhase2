@@ -60,12 +60,12 @@ proc logistic data = work.insurance_t;
 run;
 
 
-%let maineffects = SAVBAL_BIN SAV MTGBAL_BIN NSF MM IRA INV ILS DDABAL_BIN DDA ATM ATMAMT_BIN BRANCH CC CDBAL_BIN CHECKS_BIN TELLER_BIN SAVBAL_BIN|SAV|MTGBAL_BIN|NSF|MM|IRA|INV|ILS|DDABAL_BIN|DDA|ATM|ATMAMT_BIN|BRANCH|CC|CDBAL_BIN|CHECKS_BIN|TELLER_BIN;
+%let maineffects = SAVBAL_BIN SAV MTGBAL_BIN NSF MM IRA INV ILS DDABAL_BIN DDA ATM ATMAMT_BIN BRANCH CC CDBAL_BIN CHECKS_BIN TELLER_BIN SAVBAL_BIN|SAV|MTGBAL_BIN|NSF|MM|IRA|INV|ILS|DDABAL_BIN|DDA|ATM|ATMAMT_BIN|BRANCH|CC|CDBAL_BIN|CHECKS_BIN|TELLER_BIN;;
 ods trace on;
 proc logistic data = work.insurance_t;
 	class _CHAR_;
 	model ins = &maineffects @2
-		/ selection = forward slentry = 0.002 clodds=pl clparm=pl;
+		/ selection = forward slentry = 0.002 clodds=pl clparm=pl include=17;
 	ods output clparmpl = work.oddsratios;
 run;
 ods trace off;
