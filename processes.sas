@@ -52,26 +52,38 @@ run;
 */
 
 *logistic regression on all vars.  
-*ACCTAGE_Bin AGE_Bin ATM ATMAMT_Bin BRANCH CASHBK CC CCBAL_Bin CCPURC CD CDBAL_Bin CHECKS_Bin CRSCORE_Bin DDA DDABAL_Bin DEPAMT_Bin DIRDEP HMOWN HMVAL_Bin ILS ILSBAL_Bin INAREA INCOME_Bin INV INVBAL_Bin IRA IRABAL_Bin LOC LOCBAL_Bin LORES_Bin MM MMBAL_Bin MMCRED MOVED MTG MTGBAL_Bin NSF NSFAMT_Bin PHONE_Bin POSAMT_Bin POS_Bin RES SAV SAVBAL_Bin SDB TELLER_Bin ;
+*ACCTAGE_Bin AGE_Bin ATM ATMAMT_Bin BRANCH CASHBK CC CCBAL_Bin CCPURC CD CDBAL_Bin CHECKS_Bin CRSCORE_Bin DDA DDABAL_Bin DEPAMT_Bin DIRDEP HMOWN HMVAL_Bin ILS ILSBAL_Bin INAREA INCOME_Bin INV INVBAL_Bin IRA IRABAL_Bin LOC LOCBAL_Bin LORES_Bin MM MMBAL_Bin MMCRED MOVED MTG MTGBAL_Bin NSF NSFAMT_Bin PHONE_Bin POSAMT_Bin POS_Bin RES SAV SAVBAL_Bin SDB TELLER_Bin;
 proc logistic data = work.insurance_t;
-	class _CHAR_;
+	class _all_;
 	model ins = ACCTAGE_Bin AGE_Bin ATM ATMAMT_Bin BRANCH CASHBK CC CCBAL_Bin CCPURC CD CDBAL_Bin CHECKS_Bin CRSCORE_Bin DDA DDABAL_Bin DEPAMT_Bin DIRDEP HMOWN HMVAL_Bin ILS ILSBAL_Bin INAREA INCOME_Bin INV INVBAL_Bin IRA IRABAL_Bin LOC LOCBAL_Bin LORES_Bin MM MMBAL_Bin MMCRED MOVED MTG MTGBAL_Bin NSF NSFAMT_Bin PHONE_Bin POSAMT_Bin POS_Bin RES SAV SAVBAL_Bin SDB TELLER_Bin
 		/ selection = backward slstay = 0.002 clodds = pl clparm=pl;
+	ods output clparmpl = work.oddsratios;
+	ods output modelanova = work.type3main;
 run;
 
+%let maineffects = ATMAMT_Bin BRANCH CC CDBal_Bin Checks_bin DDA DDABAL_BIN ILS INV IRA MM NSF SAVBAL_BIN TELLER_BIN;
+proc export data=work.oddsratios 
+	outfile="C:\Users\bjsul\Documents\GitHub\MSA\Fall_1_Team_Work\LogisticPhase2\oddsratios.csv" replace;
+run;
 
-%let maineffects = SAVBAL_BIN SAV MTGBAL_BIN NSF MM IRA INV ILS DDABAL_BIN DDA ATM ATMAMT_BIN BRANCH CC CDBAL_BIN CHECKS_BIN TELLER_BIN SAVBAL_BIN|SAV|MTGBAL_BIN|NSF|MM|IRA|INV|ILS|DDABAL_BIN|DDA|ATM|ATMAMT_BIN|BRANCH|CC|CDBAL_BIN|CHECKS_BIN|TELLER_BIN;
+%let interactions = ATMAMT_Bin|BRANCH|CC|CDBal_Bin|Checks_bin|DDA|DDABAL_BIN|ILS|INV|IRA|MM|NSF|SAVBAL_BIN|TELLER_BIN;
 ods trace on;
 proc logistic data = work.insurance_t;
-	class _CHAR_;
-	model ins = &maineffects @2
+	class _all_;
+	model ins = &maineffects &interactions @2
 		/ selection = forward slentry = 0.002 clodds=pl clparm=pl;
-	ods output clparmpl = work.oddsratios;
+	ods output clparmpl = work.oddsratiosint;
 	ods output modelANOVA = work.Type3;
 run;
 ods trace off;
 
-proc export data=oddsratios;
+proc export data=oddsratios
+	outfile="C:\Users\bjsul\Documents\GitHub\MSA\Fall_1_Team_Work\LogisticPhase2\oddsratiosint.csv" replace;
+run;
+
+proc export data=type3
+	outfile="C:\Users\bjsul\Documents\GitHub\MSA\Fall_1_Team_Work\LogisticPhase2\type3effects.csv" replace;
+run;	
 
 *hard coded interaction variables;
 data log.insurance_t_bin;
