@@ -62,10 +62,17 @@ proc logistic data = work.insurance_t;
 run;
 
 %let maineffects = ATMAMT_Bin BRANCH CC CDBal_Bin Checks_bin DDA DDABAL_BIN ILS INV IRA MM NSF SAVBAL_BIN TELLER_BIN;
-proc export data=work.oddsratios 
-	outfile="C:\Users\bjsul\Documents\GitHub\MSA\Fall_1_Team_Work\LogisticPhase2\oddsratios.csv" replace;
+
+*export p-values for main effects only model;
+proc sort data = work.type3main out=work.type3mainsort;
+	by probchisq;
 run;
 
+proc export data=work.type3mainsort
+	outfile="C:\Users\bjsul\Documents\GitHub\MSA\Fall_1_Team_Work\LogisticPhase2\p-vaules_maineffects.csv" replace;
+run;
+
+*interactions effects model;
 %let interactions = ATMAMT_Bin|BRANCH|CC|CDBal_Bin|Checks_bin|DDA|DDABAL_BIN|ILS|INV|IRA|MM|NSF|SAVBAL_BIN|TELLER_BIN;
 ods trace on;
 proc logistic data = work.insurance_t;
@@ -77,26 +84,31 @@ proc logistic data = work.insurance_t;
 run;
 ods trace off;
 
+*export odds ratios for main effects + interaction effects;
 proc export data=oddsratios
 	outfile="C:\Users\bjsul\Documents\GitHub\MSA\Fall_1_Team_Work\LogisticPhase2\oddsratiosint.csv" replace;
 run;
 
-proc export data=type3
-	outfile="C:\Users\bjsul\Documents\GitHub\MSA\Fall_1_Team_Work\LogisticPhase2\type3effects.csv" replace;
+*sort type3 by p-value then export for main effects + interaction effects;
+proc sort data = type3 out=type3sort;
+	by probchisq;
+run;
+
+proc export data=type3sort
+	outfile="C:\Users\bjsul\Documents\GitHub\MSA\Fall_1_Team_Work\LogisticPhase2\type3effects-interactions.csv" replace;
 run;	
 
 *hard coded interaction variables;
 data log.insurance_t_bin;
 	set log.insurance_t_bin;
-	savbalddabalint = savbal_bin*ddabal_bin;
-	savbalddaint = savbal_bin*dda;
-	iraddaint = ira*dda;
-	savbalchecksint = savbal_bin*checks_bin;
+	ddairaint = dda*ira;
+	mmddabalbinint = mm*ddabal_bin;
+	ddabalbinsavbalbinint = DDABAL_Bin*SAVBAL_Bin;
 run;
 
 *two way frequency table for interaction effects;
 proc freq data = log.insurance_t_bin;
-	tables ins*(savbalddabalint savbalddaint iraddaint savbalchecksint);
+	tables ins*(ddairaint mmddabalbinint ddabalbinsavbalbinint);
 run;
 
 
